@@ -1,18 +1,16 @@
-from config import *
+from config import MAX_TOKENS, MODEL_NAME, TEMPERATURE
 from langchain_ollama import ChatOllama
 
 
 def create_llm(
-    model: str = "mistral",
-    temperature: float = 0.0,
-    num_predict: int = 512,
+    model: str = MODEL_NAME,
+    temperature: float = TEMPERATURE,
+    num_predict: int = MAX_TOKENS,
 ):
-    """
-    Returns a configured Ollama LLM.
-    """
+    """Return a configured Ollama chat model."""
 
-return ChatOllama(
-    model=MODEL_NAME,
-    temperature=TEMPERATURE,
-    num_predict=MAX_TOKENS,
-)
+    return ChatOllama(
+        model=model,
+        temperature=temperature,
+        num_predict=num_predict,
+    )
