@@ -16,7 +16,6 @@ class Metadata:
     process: Optional[str]
     event_type: Optional[str]
 
-
 class MetadataExtractor:
 
     def __init__(self):
