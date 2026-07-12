@@ -1,14 +1,38 @@
-from pathlib import Path
+"""
+Global configuration for the AI SOC.
+"""
+
+# ---------- LLM ---------- #
+
+LLM_MODEL = "mistral"
+
+LLM_TEMPERATURE = 0.0
+
+MAX_TOKENS = 512
 
 
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
-VECTORSTORE_DIR = BASE_DIR / "vectorstore"
-VECTORSTORE_INDEX_DIR = VECTORSTORE_DIR / "index"
+# ---------- Embeddings ---------- #
 
-MODEL_NAME = "mistral"
 EMBEDDING_MODEL = "nomic-embed-text"
 
-TOP_K = 5
-TEMPERATURE = 0.0
-MAX_TOKENS = 512
+
+# ---------- Vector Store ---------- #
+
+FAISS_INDEX_PATH = "data/faiss.index"
+
+DOCUMENT_STORE_PATH = "data/documents.pkl"
+
+
+TOP_K = 20
+
+FINAL_RESULTS = 5
+
+
+# ---------- Threat Intelligence ---------- #
+
+VIRUSTOTAL_API_KEY = ""
+
+
+# ---------- Risk Engine ---------- #
+
+MAX_RISK_SCORE = 100
