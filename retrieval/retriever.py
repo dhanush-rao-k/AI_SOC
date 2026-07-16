@@ -1,12 +1,40 @@
-from __future__ import annotations
-
-from .scorer import score_candidate
+from retrieval.reranker import ReRanker
 
 
-def retrieve_candidates(current_log: str, documents: list[dict], top_k: int = 5) -> list[dict]:
-    scored_candidates = []
-    for document in documents:
-        score = score_candidate(current_log, document.get("content", ""))
-        scored_candidates.append({**document, "score": score})
-    scored_candidates.sort(key=lambda candidate: candidate["score"], reverse=True)
-    return scored_candidates[:top_k]
+class HybridRetriever:
+
+    def __init__(self, vector_store):
+
+        self.vector_store = vector_store
+
+        self.reranker = ReRanker()
+
+    def retrieve(
+
+        self,
+
+        query_document,
+
+        semantic_k=20,
+
+        final_k=5
+
+    ):
+
+        candidates = self.vector_store.search(
+
+            query_document.log,
+
+            semantic_k
+
+        )
+
+        return self.reranker.rerank(
+
+            query_document,
+
+            candidates,
+
+            final_k
+
+        )
