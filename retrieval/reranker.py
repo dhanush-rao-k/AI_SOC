@@ -1,5 +1,66 @@
-from __future__ import annotations
+from vectorstore.faiss_store import SearchResult
+from vectorstore.faiss_store import SecurityDocument
+from retrieval.scorer import CorrelationScorer
 
 
-def rerank_candidates(candidates: list[dict]) -> list[dict]:
-    return sorted(candidates, key=lambda candidate: candidate.get("score", 0), reverse=True)
+class ReRanker:
+
+    def __init__(self):
+
+        self.scorer = CorrelationScorer()
+
+    def rerank(
+
+        self,
+
+        query_document: SecurityDocument,
+
+        candidates: list[SearchResult],
+
+        top_k: int = 5
+
+    ):
+
+        ranked = []
+
+        for candidate in candidates:
+
+            score = self.scorer.score(
+
+                query_document,
+
+                candidate.document,
+
+                candidate.similarity
+
+            )
+
+            ranked.append(
+
+                (
+
+                    score,
+
+                    candidate
+
+                )
+
+            )
+
+        ranked.sort(
+
+            key=lambda x: x[0],
+
+            reverse=True
+
+        )
+
+        return [
+
+            candidate
+
+            for score, candidate
+
+            in ranked[:top_k]
+
+        ]
