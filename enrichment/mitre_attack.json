@@ -1,0 +1,186 @@
+{
+  "FAILED_LOGIN": [
+    {
+      "technique_id": "T1110",
+      "name": "Brute Force",
+      "tactic": "Credential Access",
+      "description": "Repeated attempts to guess passwords for one or more accounts."
+    },
+    {
+      "technique_id": "T1110.003",
+      "name": "Password Spraying",
+      "tactic": "Credential Access",
+      "description": "Attempts a few common passwords across many accounts."
+    },
+    {
+      "technique_id": "T1110.004",
+      "name": "Credential Stuffing",
+      "tactic": "Credential Access",
+      "description": "Uses previously leaked username and password combinations."
+    }
+  ],
+
+  "SUCCESSFUL_LOGIN": [
+    {
+      "technique_id": "T1078",
+      "name": "Valid Accounts",
+      "tactic": "Defense Evasion",
+      "description": "Use of legitimate credentials to access systems."
+    }
+  ],
+
+  "INVALID_USER": [
+    {
+      "technique_id": "T1589",
+      "name": "Gather Victim Identity Information",
+      "tactic": "Reconnaissance",
+      "description": "Attempts to enumerate usernames or identities."
+    }
+  ],
+
+  "AUTH_FAILURE": [
+    {
+      "technique_id": "T1110",
+      "name": "Brute Force",
+      "tactic": "Credential Access",
+      "description": "Authentication failures that may indicate password guessing."
+    }
+  ],
+
+  "CONNECTION_REFUSED": [
+    {
+      "technique_id": "T1046",
+      "name": "Network Service Discovery",
+      "tactic": "Discovery",
+      "description": "Scanning services and ports to identify reachable systems."
+    }
+  ],
+
+  "PORT_SCAN": [
+    {
+      "technique_id": "T1046",
+      "name": "Network Service Discovery",
+      "tactic": "Discovery",
+      "description": "Scanning ports to identify available network services."
+    }
+  ],
+
+  "MALWARE_DOWNLOAD": [
+    {
+      "technique_id": "T1105",
+      "name": "Ingress Tool Transfer",
+      "tactic": "Command and Control",
+      "description": "Downloading malware or tools onto a compromised system."
+    }
+  ],
+
+  "FILE_DOWNLOAD": [
+    {
+      "technique_id": "T1105",
+      "name": "Ingress Tool Transfer",
+      "tactic": "Command and Control",
+      "description": "Transfer of files or payloads to a target host."
+    }
+  ],
+
+  "PRIVILEGE_ESCALATION": [
+    {
+      "technique_id": "T1068",
+      "name": "Exploitation for Privilege Escalation",
+      "tactic": "Privilege Escalation",
+      "description": "Exploiting vulnerabilities to gain higher privileges."
+    }
+  ],
+
+  "COMMAND_EXECUTION": [
+    {
+      "technique_id": "T1059",
+      "name": "Command and Scripting Interpreter",
+      "tactic": "Execution",
+      "description": "Execution of shell commands or scripts."
+    }
+  ],
+
+  "POWERSHELL_EXECUTION": [
+    {
+      "technique_id": "T1059.001",
+      "name": "PowerShell",
+      "tactic": "Execution",
+      "description": "Execution using PowerShell."
+    }
+  ],
+
+  "REMOTE_DESKTOP": [
+    {
+      "technique_id": "T1021.001",
+      "name": "Remote Desktop Protocol",
+      "tactic": "Lateral Movement",
+      "description": "Remote access using RDP."
+    }
+  ],
+
+  "SSH_CONNECTION": [
+    {
+      "technique_id": "T1021.004",
+      "name": "SSH",
+      "tactic": "Lateral Movement",
+      "description": "Remote access using SSH."
+    }
+  ],
+
+  "DNS_REQUEST": [
+    {
+      "technique_id": "T1071.004",
+      "name": "DNS",
+      "tactic": "Command and Control",
+      "description": "DNS used as an application layer protocol."
+    }
+  ],
+
+  "HTTP_REQUEST": [
+    {
+      "technique_id": "T1071.001",
+      "name": "Web Protocols",
+      "tactic": "Command and Control",
+      "description": "HTTP or HTTPS communication for command and control."
+    }
+  ],
+
+  "SQL_INJECTION": [
+    {
+      "technique_id": "T1190",
+      "name": "Exploit Public-Facing Application",
+      "tactic": "Initial Access",
+      "description": "Exploitation of internet-facing applications, including SQL injection."
+    }
+  ],
+
+  "XSS": [
+    {
+      "technique_id": "T1059.007",
+      "name": "JavaScript",
+      "tactic": "Execution",
+      "description": "Execution of malicious JavaScript in a browser."
+    }
+  ],
+
+  "RANSOMWARE": [
+    {
+      "technique_id": "T1486",
+      "name": "Data Encrypted for Impact",
+      "tactic": "Impact",
+      "description": "Encryption of files to disrupt operations."
+    }
+  ],
+
+  "DATA_EXFILTRATION": [
+    {
+      "technique_id": "T1041",
+      "name": "Exfiltration Over C2 Channel",
+      "tactic": "Exfiltration",
+      "description": "Data exfiltration through an established command and control channel."
+    }
+  ],
+
+  "UNKNOWN": []
+}
