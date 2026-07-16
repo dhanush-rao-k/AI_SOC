@@ -1,27 +1,229 @@
-from pathlib import Path
+import os
 import pickle
-from typing import Any
+from dataclasses import dataclass
+from typing import Dict, List
 
-from config import VECTORSTORE_INDEX_DIR
+import faiss
+import numpy as np
 
+from config import (
+    DOCUMENT_STORE_PATH,
+    FAISS_INDEX_PATH,
+)
 
-def ensure_index_dir(index_dir: Path | str = VECTORSTORE_INDEX_DIR) -> Path:
-    path = Path(index_dir)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
-def save_faiss_index(index: Any, path: Path | str = VECTORSTORE_INDEX_DIR / "faiss.index") -> Path:
-    target = Path(path)
-    ensure_index_dir(target.parent)
-    with target.open("wb") as handle:
-        pickle.dump(index, handle)
-    return target
+from embeddings.embedding import EmbeddingGenerator
+from ingestion.metadata import Metadata
 
 
-def load_faiss_index(path: Path | str = VECTORSTORE_INDEX_DIR / "faiss.index") -> Any:
-    target = Path(path)
-    if not target.exists() or target.stat().st_size == 0:
-        return None
-    with target.open("rb") as handle:
-        return pickle.load(handle)
+# -------------------------------------------------
+# Data Classes
+# -------------------------------------------------
+
+@dataclass
+class SecurityDocument:
+    """
+    Represents one security log stored in the vector database.
+    """
+
+    document_id: int
+
+    log: str
+
+    metadata: Metadata
+
+
+@dataclass
+class SearchResult:
+    """
+    Represents one retrieved result from FAISS.
+    """
+
+    similarity: float
+
+    document: SecurityDocument
+
+
+# -------------------------------------------------
+# Vector Store
+# -------------------------------------------------
+
+class FAISSStore:
+
+    def __init__(self):
+
+        self.embedding_generator = EmbeddingGenerator()
+
+        self.index = None
+
+        self.documents: Dict[int, SecurityDocument] = {}
+
+        self.next_document_id = 0
+
+    # -------------------------------------------------
+
+    def initialize(self):
+
+        """
+        Creates an empty FAISS index.
+        """
+
+        dimension = len(
+            self.embedding_generator.embed_query(
+                "initialize"
+            )
+        )
+
+        # Cosine Similarity
+        self.index = faiss.IndexFlatIP(dimension)
+
+    # -------------------------------------------------
+
+    def add_document(
+        self,
+        log: str,
+        metadata: Metadata
+    ):
+
+        embedding = self.embedding_generator.embed_document(log)
+
+        vector = np.array(
+            embedding,
+            dtype=np.float32
+        ).reshape(1, -1)
+
+        faiss.normalize_L2(vector)
+
+        self.index.add(vector)
+
+        document = SecurityDocument(
+
+            document_id=self.next_document_id,
+
+            log=log,
+
+            metadata=metadata
+
+        )
+
+        self.documents[
+            self.next_document_id
+        ] = document
+
+        self.next_document_id += 1
+
+    # -------------------------------------------------
+
+    def search(
+        self,
+        query: str,
+        k: int = 5
+    ) -> List[SearchResult]:
+
+        embedding = self.embedding_generator.embed_query(query)
+
+        vector = np.array(
+            embedding,
+            dtype=np.float32
+        ).reshape(1, -1)
+
+        faiss.normalize_L2(vector)
+
+        similarities, indices = self.index.search(
+            vector,
+            k
+        )
+
+        results = []
+
+        for similarity, index in zip(
+            similarities[0],
+            indices[0]
+        ):
+
+            if index == -1:
+                continue
+
+            results.append(
+
+                SearchResult(
+
+                    similarity=float(similarity),
+
+                    document=self.documents[index]
+
+                )
+
+            )
+
+        return results
+
+    # -------------------------------------------------
+
+    def get_document(
+        self,
+        document_id: int
+    ) -> SecurityDocument | None:
+
+        return self.documents.get(document_id)
+
+    # -------------------------------------------------
+
+    def count(self):
+
+        return self.index.ntotal
+
+    # -------------------------------------------------
+
+    def save(self):
+
+        os.makedirs(
+            os.path.dirname(
+                FAISS_INDEX_PATH
+            ),
+            exist_ok=True
+        )
+
+        faiss.write_index(
+            self.index,
+            FAISS_INDEX_PATH
+        )
+
+        with open(
+            DOCUMENT_STORE_PATH,
+            "wb"
+        ) as file:
+
+            pickle.dump(
+
+                {
+
+                    "documents": self.documents,
+
+                    "next_document_id": self.next_document_id
+
+                },
+
+                file
+
+            )
+
+    # -------------------------------------------------
+
+    def load(self):
+
+        self.index = faiss.read_index(
+            FAISS_INDEX_PATH
+        )
+
+        with open(
+            DOCUMENT_STORE_PATH,
+            "rb"
+        ) as file:
+
+            data = pickle.load(file)
+
+        self.documents = data["documents"]
+
+        self.next_document_id = data[
+            "next_document_id"
+        ]
