@@ -1,29 +1,9 @@
-from dataclasses import dataclass
 from typing import List
 
 import requests
 
 from ingestion.software import Software
-
-
-@dataclass
-class Vulnerability:
-    cve_id: str
-
-    software: str
-
-    version: str
-
-    severity: str
-
-    cvss_score: float
-
-    description: str
-
-    published: str
-
-    reference: str
-
+from enrichment.models import Vulnerability
 
 class CVELookup:
     """

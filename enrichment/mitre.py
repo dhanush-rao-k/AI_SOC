@@ -1,6 +1,8 @@
 import json
 from dataclasses import dataclass
 
+from config import MITRE_DATABASE_PATH
+
 
 @dataclass
 class MitreResult:
@@ -20,7 +22,7 @@ class MitreLookup:
 
     def __init__(
         self,
-        database_path="data/mitre_attack.json"
+        database_path=MITRE_DATABASE_PATH
     ):
 
         with open(database_path, "r") as file:

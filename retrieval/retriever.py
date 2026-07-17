@@ -1,4 +1,8 @@
+from typing import List
+
+from models.context import AnalysisContext
 from retrieval.reranker import ReRanker
+from vectorstore.faiss_store import SearchResult
 
 
 class HybridRetriever:
@@ -13,17 +17,17 @@ class HybridRetriever:
 
         self,
 
-        query_document,
+        query_document: AnalysisContext,
 
-        semantic_k=20,
+        semantic_k: int = 20,
 
-        final_k=5
+        final_k: int = 5
 
-    ):
+    ) -> List[SearchResult]:
 
         candidates = self.vector_store.search(
 
-            query_document.log,
+            query_document.raw_log,
 
             semantic_k
 

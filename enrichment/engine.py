@@ -1,6 +1,11 @@
 from enrichment.ioc import IOC
 from ingestion.software import Software
-from enrichment.models import ThreatIntel
+from enrichment.models import (
+    ThreatIntel,
+    ThreatIndicator,
+    GeoLocation,
+    MitreTechnique,
+)
 
 from enrichment.virustotal import VirusTotalClient
 from enrichment.geoip import GeoIPClient
@@ -46,7 +51,16 @@ class EnrichmentEngine:
 
             if result.found:
 
-                intel.indicators.append(result)
+                intel.indicators.append(ThreatIndicator(
+                    indicator=ip,
+                    indicator_type="IP",
+                    source="VirusTotal",
+                    malicious=result.malicious,
+                    suspicious=result.suspicious,
+                    harmless=result.harmless,
+                    undetected=result.undetected,
+                    reputation=result.reputation,
+                ))
 
         # --------------------------------------------
         # VirusTotal - Domains
@@ -58,7 +72,16 @@ class EnrichmentEngine:
 
             if result.found:
 
-                intel.indicators.append(result)
+                intel.indicators.append(ThreatIndicator(
+                    indicator=domain,
+                    indicator_type="DOMAIN",
+                    source="VirusTotal",
+                    malicious=result.malicious,
+                    suspicious=result.suspicious,
+                    harmless=result.harmless,
+                    undetected=result.undetected,
+                    reputation=result.reputation,
+                ))
 
         # --------------------------------------------
         # VirusTotal - File Hashes
@@ -70,7 +93,16 @@ class EnrichmentEngine:
 
             if result.found:
 
-                intel.indicators.append(result)
+                intel.indicators.append(ThreatIndicator(
+                    indicator=file_hash,
+                    indicator_type="HASH",
+                    source="VirusTotal",
+                    malicious=result.malicious,
+                    suspicious=result.suspicious,
+                    harmless=result.harmless,
+                    undetected=result.undetected,
+                    reputation=result.reputation,
+                ))
 
         # --------------------------------------------
         # GeoIP
@@ -82,15 +114,29 @@ class EnrichmentEngine:
 
             if geo.success:
 
-                intel.geo_locations.append(geo)
+                intel.geo_locations.append(GeoLocation(
+                    ip=geo.ip,
+                    country=geo.country or "",
+                    city=geo.city or "",
+                    region=geo.region or "",
+                    isp=geo.isp or "",
+                    asn=geo.asn or "",
+                ))
 
         # --------------------------------------------
         # MITRE
         # --------------------------------------------
 
-        mitre_results = self.mitre.lookup(event_type)
+        mitre_result = self.mitre.lookup(event_type)
 
-        intel.mitre_results.extend(mitre_results)
+        if mitre_result.found:
+
+            intel.mitre_results.append(MitreTechnique(
+                technique_id=mitre_result.technique_id,
+                name=mitre_result.technique,
+                tactic=mitre_result.tactic,
+                description=mitre_result.description,
+            ))
 
         # --------------------------------------------
         # CVE

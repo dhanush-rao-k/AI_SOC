@@ -11,7 +11,7 @@ from retrieval.retriever import HybridRetriever
 from intelligence.risk_engine import RiskEngine
 from intelligence.confidence import ConfidenceEngine
 
-from llm.chain import AI_SOC_Chain
+from llm.chain import create_chain
 
 
 class AISOCPipeline:
@@ -37,7 +37,7 @@ class AISOCPipeline:
 
         self.confidence_engine = ConfidenceEngine()
 
-        self.chain = AI_SOC_Chain()
+        self.chain = create_chain()
 
     def analyze(
         self,
@@ -132,8 +132,11 @@ class AISOCPipeline:
         # LLM
         # ---------------------------------
 
-        context.incident_report = self.chain.invoke(
-            context
-        )
+        context.incident_report = self.chain.invoke({
+            "current_log": context.raw_log,
+            "retrieved_logs": "\n\n".join(
+                result.document.log for result in context.similar_logs
+            )
+        })
 
         return context

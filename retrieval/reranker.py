@@ -1,3 +1,6 @@
+from typing import List
+
+from models.context import AnalysisContext
 from vectorstore.faiss_store import SearchResult
 from vectorstore.faiss_store import SecurityDocument
 from retrieval.scorer import CorrelationScorer
@@ -13,13 +16,13 @@ class ReRanker:
 
         self,
 
-        query_document: SecurityDocument,
+        query_document: AnalysisContext,
 
         candidates: list[SearchResult],
 
         top_k: int = 5
 
-    ):
+    ) -> List[SearchResult]:
 
         ranked = []
 

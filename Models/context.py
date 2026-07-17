@@ -1,4 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
+
+if TYPE_CHECKING:
+    from llm.parser import IncidentReport
 
 from ingestion.metadata import Metadata
 from ingestion.software import Software
@@ -54,4 +60,4 @@ class AnalysisContext:
     # Final Report
     # ---------------------------------------
 
-    incident_report = None
+    incident_report: IncidentReport | None = None

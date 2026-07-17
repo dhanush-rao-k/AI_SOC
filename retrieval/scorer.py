@@ -1,3 +1,4 @@
+from models.context import AnalysisContext
 from vectorstore.faiss_store import SecurityDocument
 
 
@@ -25,7 +26,7 @@ class CorrelationScorer:
 
         self,
 
-        query: SecurityDocument,
+        query: AnalysisContext,
 
         candidate: SecurityDocument,
 
