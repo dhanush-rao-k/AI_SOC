@@ -1,27 +1,18 @@
-from llm.chain import create_chain
+from pipeline import AISOCPipeline
+from vectorstore.faiss_store import FAISSStore
 
 
-def main():
+store = FAISSStore()
 
-    chain = create_chain()
+store.load()
 
-    report = chain.invoke(
-        {
-            "current_log": """
-Failed password for root from 192.168.1.25 port 22
-""",
-            "retrieved_logs": """
-SSH brute force from same IP yesterday.
-
-Repeated login failures.
-
-Known attack pattern.
-""",
-        }
-    )
-
-    print(report.model_dump_json(indent=4))
+pipeline = AISOCPipeline(store)
 
 
-if __name__ == "__main__":
-    main()
+log = input("Enter log: ")
+
+
+context = pipeline.analyze(log)
+
+
+print(context.incident_report)
