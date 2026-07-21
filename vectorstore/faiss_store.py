@@ -1,7 +1,7 @@
 import os
 import pickle
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import faiss
 import numpy as np
@@ -53,11 +53,11 @@ class FAISSStore:
 
         self.embedding_generator = EmbeddingGenerator()
 
-        self.index = None
-
         self.documents: Dict[int, SecurityDocument] = {}
 
         self.next_document_id = 0
+
+        self.initialize()
 
     # -------------------------------------------------
 
@@ -67,14 +67,23 @@ class FAISSStore:
         Creates an empty FAISS index.
         """
 
+        if self.index_exists():
+
+            return
+
         dimension = len(
             self.embedding_generator.embed_query(
                 "initialize"
             )
         )
 
-        # Cosine Similarity
         self.index = faiss.IndexFlatIP(dimension)
+
+    # -------------------------------------------------
+
+    def index_exists(self):
+
+        return hasattr(self, "index") and self.index is not None
 
     # -------------------------------------------------
 
@@ -119,6 +128,11 @@ class FAISSStore:
         k: int = 5
     ) -> List[SearchResult]:
 
+        if self.count() == 0:
+            return []
+
+        k = min(k, self.count())
+
         embedding = self.embedding_generator.embed_query(query)
 
         vector = np.array(
@@ -162,7 +176,7 @@ class FAISSStore:
     def get_document(
         self,
         document_id: int
-    ) -> SecurityDocument | None:
+    ) -> Optional[SecurityDocument]:
 
         return self.documents.get(document_id)
 
@@ -177,20 +191,29 @@ class FAISSStore:
     def save(self):
 
         os.makedirs(
+
             os.path.dirname(
                 FAISS_INDEX_PATH
             ),
+
             exist_ok=True
+
         )
 
         faiss.write_index(
+
             self.index,
+
             FAISS_INDEX_PATH
+
         )
 
         with open(
+
             DOCUMENT_STORE_PATH,
+
             "wb"
+
         ) as file:
 
             pickle.dump(
@@ -211,6 +234,18 @@ class FAISSStore:
 
     def load(self):
 
+        if not os.path.exists(FAISS_INDEX_PATH):
+
+            self.initialize()
+
+            return
+
+        if not os.path.exists(DOCUMENT_STORE_PATH):
+
+            self.initialize()
+
+            return
+
         self.index = faiss.read_index(
             FAISS_INDEX_PATH
         )
@@ -224,6 +259,4 @@ class FAISSStore:
 
         self.documents = data["documents"]
 
-        self.next_document_id = data[
-            "next_document_id"
-        ]
+        self.next_document_id = data["next_document_id"]
