@@ -46,11 +46,25 @@ class MitreLookup:
                 found=False
             )
 
-        technique = self.database[event_type]
+        techniques = self.database[event_type]
+
+        if not techniques:
+
+            return MitreResult(
+                technique_id="N/A",
+                technique="Unknown",
+                tactic="Unknown",
+                description="No MITRE mapping found.",
+                found=False
+            )
+
+        # TODO: support returning multiple techniques per event_type
+        # Currently returns only the first match.
+        technique = techniques[0]
 
         return MitreResult(
             technique_id=technique["technique_id"],
-            technique=technique["technique"],
+            technique=technique["name"],
             tactic=technique["tactic"],
             description=technique["description"],
             found=True
