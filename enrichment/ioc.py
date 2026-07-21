@@ -17,6 +17,13 @@ class IOC:
     emails: List[str] = field(default_factory=list)
 
 
+# File extensions that should NOT be classified as domains
+_FILE_EXTENSIONS = {
+    ".exe", ".dll", ".zip", ".pdf", ".doc", ".docx", ".txt",
+    ".png", ".jpg", ".jpeg", ".gif", ".js", ".css", ".iso", ".bin",
+}
+
+
 class IOCExtractor:
 
     def __init__(self):
@@ -41,28 +48,51 @@ class IOCExtractor:
             r"\b[a-fA-F0-9]{32,64}\b"
         )
 
+    # ------------------------------------------------------------------
+    # Private helper methods
+    # ------------------------------------------------------------------
+
+    def _extract_ips(self, log: str) -> List[str]:
+        return sorted(set(self.ip_pattern.findall(log)))
+
+    def _extract_urls(self, log: str) -> List[str]:
+        return sorted(set(self.url_pattern.findall(log)))
+
+    def _extract_domains(self, log: str) -> List[str]:
+        # Strip URLs from the log first so URL hostnames are not double-counted
+        cleaned = self.url_pattern.sub("", log)
+
+        # Also strip email addresses so the host part is not matched as a domain
+        cleaned = self.email_pattern.sub("", cleaned)
+
+        matches = self.domain_pattern.findall(cleaned)
+
+        results = set()
+        for match in matches:
+            # Reject anything that ends with a known file extension
+            lower = match.lower()
+            if any(lower.endswith(ext) for ext in _FILE_EXTENSIONS):
+                continue
+            results.add(match)
+
+        return sorted(results)
+
+    def _extract_hashes(self, log: str) -> List[str]:
+        return sorted(set(self.hash_pattern.findall(log)))
+
+    def _extract_emails(self, log: str) -> List[str]:
+        return sorted(set(self.email_pattern.findall(log)))
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
     def extract_iocs(self, log: str) -> IOC:
 
         return IOC(
-
-            ip_addresses=list(
-                set(self.ip_pattern.findall(log))
-            ),
-
-            domains=list(
-                set(self.domain_pattern.findall(log))
-            ),
-
-            urls=list(
-                set(self.url_pattern.findall(log))
-            ),
-
-            file_hashes=list(
-                set(self.hash_pattern.findall(log))
-            ),
-
-            emails=list(
-                set(self.email_pattern.findall(log))
-            )
-
+            ip_addresses=self._extract_ips(log),
+            urls=self._extract_urls(log),
+            domains=self._extract_domains(log),
+            file_hashes=self._extract_hashes(log),
+            emails=self._extract_emails(log),
         )

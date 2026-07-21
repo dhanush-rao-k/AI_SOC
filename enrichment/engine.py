@@ -93,16 +93,18 @@ class EnrichmentEngine:
 
             if result.found:
 
-                intel.indicators.append(ThreatIndicator(
-                    indicator=file_hash,
-                    indicator_type="HASH",
-                    source="VirusTotal",
-                    malicious=result.malicious,
-                    suspicious=result.suspicious,
-                    harmless=result.harmless,
-                    undetected=result.undetected,
-                    reputation=result.reputation,
-                ))
+                intel.indicators.append(
+                    ThreatIndicator(
+                        indicator=file_hash,
+                        indicator_type="HASH",
+                        source="VirusTotal",
+                        malicious=result.malicious,
+                        suspicious=result.suspicious,
+                        harmless=result.harmless,
+                        undetected=result.undetected,
+                        reputation=result.reputation,
+                    )
+                )
 
         # --------------------------------------------
         # GeoIP
