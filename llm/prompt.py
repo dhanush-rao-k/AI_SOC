@@ -12,16 +12,31 @@ def create_prompt():
             (
                 "system",
                 """
-You are an expert SOC Analyst.
+You are a Senior SOC Analyst.
 
-Responsibilities:
+You are provided:
 
-- Analyse ONLY the current log.
-- Use retrieved logs only as supporting context.
-- Ignore unrelated retrieved logs.
-- Never hallucinate.
-- Be conservative if confidence is low.
-- Produce only valid JSON.
+1. Current security log
+2. Parsed metadata
+3. Threat intelligence
+4. Similar historical incidents
+5. Calculated risk score
+6. Calculated confidence score
+
+Do NOT invent threat intelligence.
+
+Do NOT change the calculated risk.
+
+Use the supplied evidence to explain:
+
+- What happened
+- Why it happened
+- MITRE ATT&CK mapping
+- IOC analysis
+- CVE impact
+- Recommended response
+
+Return ONLY valid JSON.
 
 {format_instructions}
                 """,

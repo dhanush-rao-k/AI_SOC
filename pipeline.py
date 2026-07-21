@@ -1,3 +1,5 @@
+import json
+from dataclasses import asdict
 from models.context import AnalysisContext
 
 from ingestion.metadata import MetadataExtractor
@@ -133,10 +135,38 @@ class AISOCPipeline:
         # ---------------------------------
 
         context.incident_report = self.chain.invoke({
+
             "current_log": context.raw_log,
+
+            "metadata": json.dumps(
+                asdict(context.metadata),
+                indent=2,
+                default=str
+            ),
+
+            "threat_intel": json.dumps(
+                asdict(context.threat_intel),
+                indent=2,
+                default=str
+            ),
+
+            "risk": json.dumps(
+                asdict(context.risk),
+                indent=2,
+                default=str
+            ),
+
+            "confidence": json.dumps(
+                asdict(context.confidence),
+                indent=2,
+                default=str
+            ),
+
             "retrieved_logs": "\n\n".join(
-                result.document.log for result in context.similar_logs
-            )
+                f"Similarity: {round(result.similarity, 3)}\nLog:\n{result.document.log}"
+                for result in context.similar_logs
+            ) if context.similar_logs else "No similar historical logs found.",
+
         })
 
-        return context
+        return context
